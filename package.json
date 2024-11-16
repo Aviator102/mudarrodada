@@ -1,0 +1,14 @@
+{
+  "name": "meu-jogo-aviator",
+  "version": "1.0.0",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start"
+  },
+  "dependencies": {
+    "next": "^13.x.x",
+    "react": "^18.x.x",
+    "react-dom": "^18.x.x"
+  }
+}
