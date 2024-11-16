@@ -1,12 +1,10 @@
-import { useState, useEffect } from 'react';
+const { useState, useEffect } = require('react');
 
-export default function Home() {
-  // Estado para a rodada e valor
+function Home() {
   const [rodada, setRodada] = useState(1);
   const [valor, setValor] = useState("-");
   const [novaRodada, setNovaRodada] = useState("");
 
-  // Função para buscar o status atual da rodada
   const buscarStatus = async () => {
     try {
       const res = await fetch("/api/rodada");
@@ -18,14 +16,12 @@ export default function Home() {
     }
   };
 
-  // Chama a função para buscar o status inicialmente e em intervalos
   useEffect(() => {
     buscarStatus();
     const interval = setInterval(buscarStatus, 5000); // Atualiza a cada 5 segundos
-    return () => clearInterval(interval); // Limpa o intervalo quando o componente for desmontado
+    return () => clearInterval(interval);
   }, []);
 
-  // Função para alterar a rodada
   const alterarRodada = async () => {
     if (!novaRodada) {
       alert("Por favor, insira um número de rodada.");
@@ -49,11 +45,13 @@ export default function Home() {
 
   return (
     <div>
+      {/* Cabeçalho */}
       <header>
         <h1>Bem-vindo ao Jogo Aviator</h1>
         <p>Monitore a rodada e o valor em tempo real.</p>
       </header>
 
+      {/* Corpo */}
       <main>
         <section id="status">
           <h2>Status da Rodada</h2>
@@ -61,6 +59,7 @@ export default function Home() {
           <p>Valor: {valor}</p>
         </section>
 
+        {/* Controle */}
         <section id="controle">
           <h3>Alterar Rodada</h3>
           <input
@@ -73,6 +72,7 @@ export default function Home() {
         </section>
       </main>
 
+      {/* Rodapé */}
       <footer>
         <p>&copy; 2024 Jogo Aviator. Todos os direitos reservados.</p>
       </footer>
