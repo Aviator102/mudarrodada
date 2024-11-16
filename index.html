@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Visualizar e Alterar Rodada</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+        .container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        h1 {
+            margin-bottom: 20px;
+        }
+        .info {
+            margin-bottom: 20px;
+        }
+        input[type="number"] {
+            padding: 8px;
+            font-size: 14px;
+            width: 150px;
+            margin-top: 10px;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 10px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Rodada Atual</h1>
+
+        <div class="info">
+            <p><strong>Valor: </strong><span id="valor">{{ valor }}</span></p>
+            <p><strong>Rodada: </strong><span id="rodada">{{ rodada }}</span></p>
+        </div>
+
+        <div class="alterar-rodada">
+            <input type="number" id="novaRodada" placeholder="Nova Rodada" min="1">
+            <button onclick="alterarRodada()">Alterar Rodada</button>
+        </div>
+    </div>
+
+    <script>
+        function alterarRodada() {
+            const novaRodada = document.getElementById('novaRodada').value;
+            if (!novaRodada) {
+                alert('Por favor, insira um número para a nova rodada.');
+                return;
+            }
+
+            fetch('/alterar_rodada', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: `rodada=${novaRodada}`
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'sucesso') {
+                    alert(`Rodada alterada para ${data.nova_rodada}`);
+                    document.getElementById('rodada').textContent = data.nova_rodada;
+                } else {
+                    alert('Erro ao alterar a rodada.');
+                }
+            })
+            .catch(error => {
+                console.error('Erro ao enviar a requisição:', error);
+            });
+        }
+    </script>
+
+</body>
+</html>
