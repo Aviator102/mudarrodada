@@ -3,95 +3,85 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Visualizar e Alterar Rodada</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f9;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-        }
-        .container {
-            background-color: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            text-align: center;
-        }
-        h1 {
-            margin-bottom: 20px;
-        }
-        .info {
-            margin-bottom: 20px;
-        }
-        input[type="number"] {
-            padding: 8px;
-            font-size: 14px;
-            width: 150px;
-            margin-top: 10px;
-        }
-        button {
-            padding: 10px 20px;
-            background-color: #007bff;
-            color: white;
-            border: none;
-            cursor: pointer;
-            font-size: 16px;
-            margin-top: 10px;
-        }
-        button:hover {
-            background-color: #0056b3;
-        }
-    </style>
+    <title>Meu Jogo</title>
+    <link rel="stylesheet" href="style.css"> <!-- Se você tiver um arquivo de CSS -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> <!-- Usando jQuery para facilitar interações -->
 </head>
 <body>
+    <header>
+        <h1>Bem-vindo ao Jogo Aviator</h1>
+        <p>Monitore a rodada e o valor em tempo real.</p>
+    </header>
 
-    <div class="container">
-        <h1>Rodada Atual</h1>
+    <main>
+        <section id="status">
+            <h2>Status da Rodada</h2>
+            <p id="rodada">Rodada: <span id="numero-rodada">1</span></p>
+            <p id="valor">Valor: <span id="valor-rodada">-</span></p>
+        </section>
 
-        <div class="info">
-            <p><strong>Valor: </strong><span id="valor">{{ valor }}</span></p>
-            <p><strong>Rodada: </strong><span id="rodada">{{ rodada }}</span></p>
-        </div>
+        <section id="controle">
+            <h3>Alterar Rodada</h3>
+            <input type="number" id="nova-rodada" placeholder="Digite nova rodada" />
+            <button onclick="alterarRodada()">Alterar</button>
+        </section>
 
-        <div class="alterar-rodada">
-            <input type="number" id="novaRodada" placeholder="Nova Rodada" min="1">
-            <button onclick="alterarRodada()">Alterar Rodada</button>
-        </div>
-    </div>
+        <div id="mensagem"></div>
+    </main>
+
+    <footer>
+        <p>&copy; 2024 Jogo Aviator. Todos os direitos reservados.</p>
+    </footer>
 
     <script>
+        // Função para atualizar o valor e a rodada no HTML
+        function atualizarStatus(rodada, valor) {
+            document.getElementById('numero-rodada').textContent = rodada;
+            document.getElementById('valor-rodada').textContent = valor;
+        }
+
+        // Função para enviar a nova rodada para o backend (Flask)
         function alterarRodada() {
-            const novaRodada = document.getElementById('novaRodada').value;
+            const novaRodada = document.getElementById('nova-rodada').value;
+
             if (!novaRodada) {
-                alert('Por favor, insira um número para a nova rodada.');
+                alert("Por favor, insira um número de rodada válido.");
                 return;
             }
 
-            fetch('/alterar_rodada', {
+            // Enviar a nova rodada para o servidor (Flask) via fetch
+            fetch('/alterar-rodada', {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded'
+                    'Content-Type': 'application/json'
                 },
-                body: `rodada=${novaRodada}`
+                body: JSON.stringify({ rodada: novaRodada })
             })
             .then(response => response.json())
             .then(data => {
-                if (data.status === 'sucesso') {
-                    alert(`Rodada alterada para ${data.nova_rodada}`);
-                    document.getElementById('rodada').textContent = data.nova_rodada;
-                } else {
-                    alert('Erro ao alterar a rodada.');
-                }
+                document.getElementById('mensagem').textContent = data.mensagem;
+                document.getElementById('nova-rodada').value = '';
             })
             .catch(error => {
-                console.error('Erro ao enviar a requisição:', error);
+                console.error('Erro:', error);
             });
         }
-    </script>
 
+        // Função para buscar os dados da rodada em tempo real
+        function buscarStatus() {
+            fetch('/status-rodada')
+                .then(response => response.json())
+                .then(data => {
+                    atualizarStatus(data.rodada, data.valor);
+                })
+                .catch(error => console.error('Erro ao buscar status:', error));
+        }
+
+        // Atualizar o status da rodada a cada 5 segundos
+        setInterval(buscarStatus, 5000);
+
+        // Carregar o status inicial ao carregar a página
+        window.onload = buscarStatus;
+    </script>
 </body>
 </html>
